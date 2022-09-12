@@ -20,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.wantech.notes.feature_note.presentation.note.NotesEVent
 import com.wantech.notes.feature_note.presentation.note.NotesViewModel
+import com.wantech.notes.feature_note.presentation.util.Screen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -38,7 +39,7 @@ fun NotesScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { },
+                onClick = { navController.navigate(Screen.AddEditNoteScreen.route) },
                 backgroundColor = MaterialTheme.colors.primary
             ) {
                 Icon(
@@ -93,7 +94,14 @@ fun NotesScreen(
                         note = note,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { },
+                            .clickable {
+                                navController.navigate(
+                                    Screen.AddEditNoteScreen.route
+                                            + "?noteId=${note.id}&noteCOlor=${note.color}"
+                                ) {
+
+                                }
+                            },
                         onDeleteClick = {
                             viewModel.onEvent(NotesEVent.DeleteNote(note))
                             scope.launch {

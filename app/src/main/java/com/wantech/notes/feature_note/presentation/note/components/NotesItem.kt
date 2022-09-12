@@ -18,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
@@ -82,19 +81,18 @@ fun NoteItem(
                 maxLines = 10,
                 overflow = TextOverflow.Ellipsis
             )
-            Box(modifier = Modifier){
-                IconButton(
-                    onClick = { onDeleteClick() },
-                    modifier = Modifier.align(Alignment.BottomEnd)
 
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete Note"
-                    )
-                }
-            }
+        }
+        IconButton(
+            onClick = { onDeleteClick() },
+            modifier = Modifier.align(Alignment.BottomEnd)
 
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Delete Note",
+                tint = MaterialTheme.colors.onSurface
+            )
         }
     }
 }
