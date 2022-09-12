@@ -3,6 +3,7 @@ package com.wantech.notes.feature_note.presentation.add_eddit_note
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toArgb
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wantech.notes.feature_note.domain.model.InvalidNoteException
@@ -16,8 +17,31 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditNoteViewModel @Inject constructor(
-    private val notesUseCases: NotesUseCases
+    private val notesUseCases: NotesUseCases,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    init {
+        savedStateHandle.get<Int>("noteId")?.let { noteId ->
+            if (noteId != -1) {
+                viewModelScope.launch {
+                    notesUseCases.getNoteUseCase(noteId)?.also { note ->
+                        currentNoteId = note.id
+                        _noteTittle.value = noteTittle.value.copy(
+                            text = note.tittle,
+                            isHintVisible = false
+                        )
+                        _noteContent.value = noteContent.value.copy(
+                            text = note.content,
+                            isHintVisible = false
+                        )
+                        _noteColor .value =note.color
+                    }
+                }
+            }
+        }
+    }
+
     private var _noteTittle = mutableStateOf<NoteTextFieldState>(
         NoteTextFieldState(
             hint = "Enter Tittle"
@@ -52,7 +76,11 @@ class AddEditNoteViewModel @Inject constructor(
                                 id = currentNoteId
                             )
                         )
+                        _eventFlow.emit(UiEvent.SaveNote)
                     } catch (e: InvalidNoteException) {
+                        _eventFlow.emit(
+                            UiEvent.ShowSnackBar(message = e.message ?: "could'nt save note")
+                        )
                     }
                 }
             }
