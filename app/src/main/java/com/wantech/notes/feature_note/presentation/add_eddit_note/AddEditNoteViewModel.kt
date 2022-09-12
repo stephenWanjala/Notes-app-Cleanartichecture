@@ -8,6 +8,7 @@ import com.wantech.notes.feature_note.domain.model.Note
 import com.wantech.notes.feature_note.domain.usecase.NotesUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,6 +32,8 @@ class AddEditNoteViewModel @Inject constructor(
     val noteColor: State<Int> = _noteColor
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
+    val eventflow = _eventFlow.asSharedFlow()
+
 
     sealed class UiEvent {
         data class ShowSnackBar(val message: String) : UiEvent()
