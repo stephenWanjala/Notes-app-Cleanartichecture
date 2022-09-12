@@ -4,11 +4,14 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wantech.notes.feature_note.domain.model.InvalidNoteException
 import com.wantech.notes.feature_note.domain.model.Note
 import com.wantech.notes.feature_note.domain.usecase.NotesUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,6 +37,52 @@ class AddEditNoteViewModel @Inject constructor(
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventflow = _eventFlow.asSharedFlow()
 
+    private var currentNoteId: Int? = null
+    fun onEvent(event: AddEditNoteEvent) {
+        when (event) {
+            is AddEditNoteEvent.SaveNote -> {
+                viewModelScope.launch {
+                    try {
+                        notesUseCases.addNotesUseCase(
+                            Note(
+                                tittle = noteTittle.value.text,
+                                content = noteContent.value.text,
+                                timeStamp = System.currentTimeMillis(),
+                                color = noteColor.value,
+                                id = currentNoteId
+                            )
+                        )
+                    } catch (e: InvalidNoteException) {
+                    }
+                }
+            }
+            is AddEditNoteEvent.ChangeColor -> {
+                _noteColor.value = event.color
+            }
+            is AddEditNoteEvent.ChangeContentFocusState -> {
+                _noteContent.value = noteContent.value.copy(
+                    isHintVisible = !event.focusState.isFocused &&
+                            noteContent.value.text.isBlank()
+                )
+            }
+            is AddEditNoteEvent.ChangeTittleFocusState -> {
+                _noteTittle.value = noteTittle.value.copy(
+                    isHintVisible = !event.focusState.isFocused &&
+                            noteTittle.value.text.isBlank()
+                )
+            }
+            is AddEditNoteEvent.EnterContent -> {
+                _noteContent.value = noteContent.value.copy(
+                    text = event.value
+                )
+            }
+            is AddEditNoteEvent.EnterTittle -> {
+                _noteTittle.value = noteTittle.value.copy(
+                    text = event.value
+                )
+            }
+        }
+    }
 
     sealed class UiEvent {
         data class ShowSnackBar(val message: String) : UiEvent()
